@@ -1,5 +1,4 @@
-/* Общие стили. Каркас
-   ========================================================================== */
+/* Общие стили. Каркас*/
 
 @font-face {
   font-family: "Open Sans";
@@ -877,8 +876,6 @@ main {
      -ms-flex-pack: start;
    justify-content: flex-start;
 
-  -webkit-box-align: flex-start;
-     -ms-flex-align: flex-start;
         align-items: flex-start;
 
   border-bottom: 1px solid #cccccc;
