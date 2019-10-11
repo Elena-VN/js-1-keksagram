@@ -151,7 +151,7 @@ const fillComments = function (photo) {
  * @return {HTMLElement}
  */
 const showBigPhoto = function (photo) {
-  bigPicture.classList.remove('hidden');
+  // bigPicture.classList.remove('hidden');
   bigPicture.querySelector('.big-picture__img').querySelector('img').src = photo.url;
   bigPicture.querySelector('.likes-count').textContent = photo.likes;
   bigPicture.querySelector('.comments-count').textContent = photo.comments.length;
@@ -160,7 +160,7 @@ const showBigPhoto = function (photo) {
   return bigPicture;
 };
 
-const photos = Array.from({ length: AMOUNT_PHOTOS });
+const photos = Array.from({length: AMOUNT_PHOTOS});
 const fragment = document.createDocumentFragment();
 
 // Заполнение массива фотографий
@@ -171,7 +171,196 @@ photos.forEach(function (element, index, arr) {
 });
 
 picturesContainer.appendChild(fragment);
-showBigPhoto(photos[0]);
 
 document.querySelector('.social__comment-count').classList.add('visually-hidden');
 document.querySelector('.comments-loader').classList.add('visually-hidden');
+
+/**
+ *  Задание 2
+ */
+const uploadFileButton = picturesContainer.querySelector('#upload-file');
+const windowEditingImg = picturesContainer.querySelector('.img-upload__overlay');
+const closeEditingImgButton = windowEditingImg.querySelector('.cancel');
+const scalePin = windowEditingImg.querySelector('.scale__pin');
+
+const ESC_KEYCODE = 27;
+
+const onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopupEdit();
+    closePopupPicture();
+  }
+};
+
+const addEvtListenerPopupEsc = function() {
+  document.addEventListener('keydown', onPopupEscPress);
+};
+
+const removeEvtListenerPopupEsc = function() {
+  document.removeEventListener('keydown', onPopupEscPress);
+};
+
+const openPopupEdit = function () {
+  windowEditingImg.classList.remove('hidden');
+  addEvtListenerPopupEsc();
+};
+
+const closePopupEdit = function () {
+  windowEditingImg.classList.add('hidden');
+  removeEvtListenerPopupEsc();
+};
+
+const openPopupPicture = function () {
+  bigPicture.classList.remove('hidden');
+  addEvtListenerPopupEsc();
+};
+
+const closePopupPicture = function () {
+  bigPicture.classList.add('hidden');
+  removeEvtListenerPopupEsc();
+};
+
+const previewImg = function () {
+  const picture = picturesContainer.querySelector('.img-upload__preview img');//повторяется
+  const uploadFile = uploadFileButton.files[0];
+  const reader = new FileReader();
+
+  reader.onloadend = function () {
+    picture.src = reader.result;
+  };
+
+  if (uploadFile) {
+    reader.readAsDataURL(uploadFile);
+  } else {
+    picture.src = "";
+  }
+};
+
+const calcPositionPinProcent = function () {
+  const widthPinParent = scalePin.offsetParent.offsetWidth;
+  const positionPin = scalePin.offsetLeft;
+  const positionPinProcent = Math.round(positionPin * 100 / widthPinParent);
+};
+
+const linksToPhoto = picturesContainer.querySelectorAll('a');
+const closeBigPicture = bigPicture.querySelector('.big-picture__cancel');
+
+const hashtagsTextInput = windowEditingImg.querySelector('.text__hashtags');
+const descriptionTextarea = windowEditingImg.querySelector('.text__description');
+
+const verificationHashtagsInput = function () {
+  const hashtagsString = hashtagsTextInput.value.split(' ');
+  const hash = '#';
+  let textCustomValidity = '';
+
+  if (hashtagsString.length > 5) {
+    textCustomValidity += 'Хэштегов не должно быть больше 5. ';
+  }
+
+  hashtagsString.forEach(function (element, index) {
+      if (element[0] != hash) {
+        textCustomValidity += 'Хэштег должен начинаться с #. ';
+      }
+      for (let j = index + 1; j < element.length; j++) {
+        if (element[0] === element[j])
+          textCustomValidity += 'Хэштеги должны быть разделены пробелами. ';
+      }
+
+      if (element.length < 2 || element.length > 20) {
+        textCustomValidity += 'Хэштег должен быть больше 2 и меньше 20 символов включая #. ';
+      }
+      for (let j = index + 1; j < hashtagsString.length; j++) {
+        if (element.toLowerCase() === hashtagsString[j].toLowerCase())
+          textCustomValidity += 'Хэштеги не должны повторяться. ';
+      }
+
+      hashtagsTextInput.setCustomValidity(textCustomValidity);
+    }
+  );
+};
+
+const showEffect = function () {
+  const effectsInput = windowEditingImg.querySelectorAll('.effects__radio');
+  const picture = picturesContainer.querySelector('.img-upload__preview img');//повторяется
+  const effectsPreview = windowEditingImg.querySelectorAll('.effects__preview');
+
+  effectsInput.forEach(function (element, index) {
+    element.addEventListener('click',function () {
+      const pictureClass = picture.className;
+      const effectPreview = effectsPreview[index].className.split(' ');
+
+      if (pictureClass) {
+        picture.classList.remove(pictureClass);
+      }
+      picture.classList.add(effectPreview[2]);
+
+    });
+  });
+};
+
+// увеличение масштаба фото
+const changingScale = function () {
+  const picture = picturesContainer.querySelector('.img-upload__preview img');//повторяется
+  const decreaseScaleBatton = windowEditingImg.querySelector('.scale__control--smaller');
+  const increaseScaleBatton = windowEditingImg.querySelector('.scale__control--bigger');
+  const valueScale = windowEditingImg.querySelector('.scale__control--value');
+
+  const percentChangeStep = 25;
+  const percentMin = '25%';
+  const percentMax = '100%';
+
+  const changeScaleValue = function () {
+    valueScale.value = numericalValueScale + '%';
+    picture.style.transform = 'scale(' + numericalValueScale/100 + ')';
+  };
+
+  valueScale.value = percentMax;
+
+  let numericalValueScale = Number((valueScale.value.replace('%','')));
+  picture.style.transform = 'scale(' + numericalValueScale/100 + ')';
+
+  decreaseScaleBatton.addEventListener('click', function () {
+    if (valueScale.value !== percentMin) {
+      numericalValueScale = numericalValueScale - percentChangeStep;
+      changeScaleValue();
+    }
+  });
+  increaseScaleBatton.addEventListener('click', function () {
+    if (valueScale.value !== percentMax) {
+      numericalValueScale = numericalValueScale + percentChangeStep;
+      changeScaleValue();
+    }
+  });
+};
+
+changingScale();
+
+uploadFileButton.addEventListener('change', function () {
+  openPopupEdit();
+  previewImg();
+});
+
+closeEditingImgButton.addEventListener('click', function () {
+  closePopupEdit();
+  uploadFileButton.value = '';
+});
+
+closeBigPicture.addEventListener('click', closePopupPicture);
+
+scalePin.addEventListener('mouseup', calcPositionPinProcent);
+
+linksToPhoto.forEach(function (element, index) {
+  element.addEventListener('click', function () {
+    openPopupPicture();
+    showBigPhoto(photos[index]);
+  });
+});
+
+hashtagsTextInput.addEventListener('focus', removeEvtListenerPopupEsc);
+hashtagsTextInput.addEventListener('blur', addEvtListenerPopupEsc);
+descriptionTextarea.addEventListener('focus', removeEvtListenerPopupEsc);
+descriptionTextarea.addEventListener('blur', addEvtListenerPopupEsc);
+
+verificationHashtagsInput();
+
+showEffect();

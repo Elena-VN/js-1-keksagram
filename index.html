@@ -39,7 +39,7 @@
             </fieldset>
 
             <!-- Форма редактирования изображения -->
-            <div class="img-upload__overlay  hidden">
+            <div class="img-upload__overlay overlay  hidden">
               <div class="img-upload__wrapper">
                 <div class="img-upload__preview-container">
 
@@ -59,7 +59,7 @@
                   <fieldset class="img-upload__effect-level  effect-level">
                     <input class="effect-level__value" type="number" name="effect-level" value="20">
                     <div class="effect-level__line">
-                      <div class="effect-level__pin" tabindex="0">Кнопка изменения глубины эффекта фотографии</div>
+                      <div class="effect-level__pin scale__pin" tabindex="0">Кнопка изменения глубины эффекта фотографии</div>
                       <div class="effect-level__depth">Глубина эффекта фотографии</div>
                     </div>
                   </fieldset>
@@ -118,7 +118,7 @@
 
                 <!-- Добавление хэш-тегов и комментария к изображению -->
                 <fieldset class="img-upload__text text">
-                  <input class="text__hashtags" name="hashtags" placeholder="#хэш-тег">
+                  <input class="text__hashtags" name="hashtags" placeholder="#хэш-тег" oninput="verificationHashtagsInput();">
                   <textarea class="text__description" name="description" placeholder="Ваш комментарий..."></textarea>
                 </fieldset>
 
